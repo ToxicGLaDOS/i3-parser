@@ -1,5 +1,4 @@
 from enum import Enum, auto
-from abc import ABC, abstractmethod
 from typing import Tuple, Iterable
 from utils.all_spaces import all_spaces
 from commands.command import Command
@@ -33,6 +32,7 @@ class FullscreenArgument(Enum):
 
 class FullscreenCommand(Command):
     def __init__(self, arg: FullscreenArgument, is_global: bool = False, spacing: Iterable[str] = all_spaces):
+        super().__init__()
         if arg.value == FullscreenArgument.DISABLE and is_global:
             raise ValueError("Can't have fullscreen argument 'disable' with is_global = True")
         self.arg = arg

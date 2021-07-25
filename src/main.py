@@ -5,6 +5,7 @@ from enum import Enum, auto
 from parsimonious.nodes import NodeVisitor
 from commands.move import *
 from commands.fullscreen import *
+from commands.exec import *
 import os
 
 class BindOption(Enum): 
@@ -150,6 +151,16 @@ class I3ConfigVisitor(NodeVisitor):
     
     def visit_fullscreen_global(self, node, fullscreen_global):
         return FullscreenCommand(FullscreenArgument.NONE, is_global=True, spacing=[])
+
+    def visit_statement_no_line(self, node, statement_no_line):
+        statement_no_line, = statement_no_line
+        if type(statement_no_line) == ExecCommand:
+            with open("output.config", 'a') as output:
+                output.write(f"{str(statement_no_line)}\n")
+
+    def visit_exec_command(self, node, exec_command):
+        _, space, command = exec_command
+        return ExecCommand(command, spacing=[space])
 
     def visit_bind_actions(self, node, bind_actions):
         bind_actions, = bind_actions

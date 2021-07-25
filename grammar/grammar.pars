@@ -10,7 +10,7 @@ mode_block = "mode" space (quoted_variable / quoted_string) quote_block
 lines = line*
 line = comment / statement
 statement = ( space * ) statement_no_line newline
-statement_no_line = bind_statement / geometry_statement / mouse_warping_statement / workspace_layout / workspace_output / yes_no_statement / set_statement / status_command / font_statement / float_key_statement / workspace_buttons / popup_fullscreen_action / exec_always / exec_action / window_event / assign_statement / no_focus_statement / orientation_statement / new_float_border / new_window_border / hide_edge_borders_statement / set_from_resource / bar_position_statement / client_statement/ colors_statement / empty_statement
+statement_no_line = bind_statement / geometry_statement / mouse_warping_statement / workspace_layout / workspace_output / yes_no_statement / set_statement / status_command / font_statement / float_key_statement / workspace_buttons / popup_fullscreen_action / exec_always / exec_command / window_event / assign_statement / no_focus_statement / orientation_statement / new_float_border / new_window_border / hide_edge_borders_statement / set_from_resource / bar_position_statement / client_statement/ colors_statement / empty_statement
 
 workspace_output = "workspace" space workspace_const space "output" space word
 yes_no_statement =  ( "workspace_auto_back_and_forth" / "force_focus_wrapping" / "focus_follows_mouse" / "force_xinerama") space yes_no
@@ -44,8 +44,6 @@ orientation = ("vertical" / "horizontal" / "auto" )
 
 popup_fullscreen_action = "popup_during_fullscreen" space popup_action
 
-exec_action = exec space rest
-
 exec_always = "exec_always" space rest
 
 popup_action = "leave_fullscreen" / "smart" / "ignore"
@@ -58,7 +56,7 @@ bind_statement = ( "bindsym" / "bindcode" ) (space bind_option)*  space key (spa
 bind_option = "--release" / "--border" / "--whole-window" / "--exclude-titlebar"
 
 bind_actions = (bind_action space ?  ("," / ";") space ? bind_actions) / bind_action
-bind_action = exec_action / fullscreen_command / mode_action / focus_action / i3_action / i3_move_command / i3_split_action / i3_layout_action / i3_modify_float / i3_sticky_action / i3_workspace_command / i3_resize_action / scratch_show / border_action
+bind_action = exec_command / fullscreen_command / mode_action / focus_action / i3_action / i3_move_command / i3_split_action / i3_layout_action / i3_modify_float / i3_sticky_action / i3_workspace_command / i3_resize_action / scratch_show / border_action
 
 border_action = "border" space border_const
 
@@ -101,7 +99,7 @@ split_direction = "h" / "v"
 i3_resize_action = resize_relative_action / resize_absolute_action
 resize_relative_action = "resize" space ( "shrink" / "grow" ) space ("width" / "height") space measurement
 resize_absolute_action = "resize" space "set" space measurement space measurement
-exec_action = "exec" space exec_bash
+exec_command = "exec" space exec_bash
 mode_action = "mode" space (quoted_string  / variable_name / variable )
 exec_bash = any_chars
 client_statement = "client." client_statement_tail
