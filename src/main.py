@@ -4,6 +4,7 @@ from grammar import build_grammar
 from enum import Enum, auto
 from parsimonious.nodes import NodeVisitor
 from commands.move import *
+from commands.fullscreen import *
 import os
 
 class BindOption(Enum): 
@@ -116,6 +117,39 @@ class I3ConfigVisitor(NodeVisitor):
             out.write(str(binding) + '\n')
         return binding
 
+    def visit_fullscreen_command(self, node, fullscreen_command):
+        # space_fullscreen_command is a list containing the spaces
+        # and the object returned by visit_fullscreen_xxxx
+        _, space_fullscreen_command = fullscreen_command
+        if type(space_fullscreen_command) == list:
+            space_fullscreen_command, = space_fullscreen_command
+            space, fullscreen_command = space_fullscreen_command
+            fullscreen_command, = fullscreen_command
+            fullscreen_command._add_spacing_reversed(space)
+        else:
+            fullscreen_command = FullscreenCommand(FullscreenArgument.NONE, is_global=False, spacing=[])
+        return fullscreen_command
+
+    def visit_fullscreen_mode(self, node, fullscreen_mode):
+        spacing = []
+        is_global = False
+        enable_or_toggle, space_global = fullscreen_mode
+        enable_or_toggle = enable_or_toggle[0].text
+        if type(space_global) == list:
+            space_global, = space_global
+            space, _ = space_global
+            spacing.append(space)
+            is_global = True
+        
+        fullscreen_arg = FullscreenArgument.from_string(enable_or_toggle)
+        fullscreen_command = FullscreenCommand(fullscreen_arg, is_global, spacing)
+        return fullscreen_command
+
+    def visit_fullscreen_disable(self, node, fullscreen_disable):
+        return FullscreenCommand(FullscreenArgument.DISABLE, spacing=[])
+    
+    def visit_fullscreen_global(self, node, fullscreen_global):
+        return FullscreenCommand(FullscreenArgument.NONE, is_global=True, spacing=[])
 
     def visit_bind_actions(self, node, bind_actions):
         bind_actions, = bind_actions
@@ -282,17 +316,19 @@ class I3ConfigVisitor(NodeVisitor):
 
 
 if __name__ == "__main__":
-    if os.path.exists("output.config"):
-        os.remove("output.config")
-
-    with open("tests/move.config", 'r') as config_file:
-        config_text = config_file.read()
     g = build_grammar()
-    ast = g.parse(config_text)
-    I3ConfigVisitor().visit(ast)
-    with open("tests/move.config", 'r') as original:
-        with open("output.config", 'r') as output:
-            for original_line, output_line in zip(original, output):
-                if original_line != output_line:
-                    print(f"Original: '{original_line}'")
-                    print(f"Test:     '{output_line}'")
+    for test_file in os.listdir("tests"):
+        if os.path.exists("output.config"):
+            os.remove("output.config")
+        test_file = "tests/" + test_file 
+        with open(test_file, 'r') as config_file:
+            config_text = config_file.read() 
+        ast = g.parse(config_text)
+        I3ConfigVisitor().visit(ast)
+        with open(test_file, 'r') as original:
+            with open("output.config", 'r') as output:
+                for original_line, output_line in zip(original, output):
+                    if original_line != output_line:
+                        print(f"Original: '{original_line}'")
+                        print(f"Test:     '{output_line}'")
+        
