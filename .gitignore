@@ -1,0 +1,14 @@
+*.pyc
+*.egg-info
+dist/
+build/
+coverage.xml
+.coverage
+.tox
+.eggs
+venv
+.cache
+.ropeproject
+__pycache__
+.test-pass-commit
+output.config
