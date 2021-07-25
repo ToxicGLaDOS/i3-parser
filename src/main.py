@@ -6,6 +6,7 @@ from parsimonious.nodes import NodeVisitor
 from commands.move import *
 from commands.fullscreen import *
 from commands.exec import *
+from commands.mode import *
 import os
 
 class BindOption(Enum): 
@@ -161,6 +162,21 @@ class I3ConfigVisitor(NodeVisitor):
     def visit_exec_command(self, node, exec_command):
         _, space, command = exec_command
         return ExecCommand(command, spacing=[space])
+
+    def visit_mode_command(self, node, mode_command):
+        _, space, mode_name = mode_command
+        mode_name, = mode_name
+        if type(mode_name) == list:
+            if len(mode_name) == 2:
+                _, mode_name = mode_name
+                mode_name = f"${mode_name.text}"
+            elif len(mode_name) == 3:
+                # The place holders are literal quotes
+                _, mode_name, _ = mode_name
+                mode_name = f"\"{mode_name.text}\""
+        else:
+            mode_name = mode_name.text
+        return ModeCommand(mode_name, spacing=[space])
 
     def visit_bind_actions(self, node, bind_actions):
         bind_actions, = bind_actions

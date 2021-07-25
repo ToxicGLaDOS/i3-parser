@@ -56,7 +56,7 @@ bind_statement = ( "bindsym" / "bindcode" ) (space bind_option)*  space key (spa
 bind_option = "--release" / "--border" / "--whole-window" / "--exclude-titlebar"
 
 bind_actions = (bind_action space ?  ("," / ";") space ? bind_actions) / bind_action
-bind_action = exec_command / fullscreen_command / mode_action / focus_action / i3_action / i3_move_command / i3_split_action / i3_layout_action / i3_modify_float / i3_sticky_action / i3_workspace_command / i3_resize_action / scratch_show / border_action
+bind_action = exec_command / fullscreen_command / mode_command / focus_action / i3_action / i3_move_command / i3_split_action / i3_layout_action / i3_modify_float / i3_sticky_action / i3_workspace_command / i3_resize_action / scratch_show / border_action
 
 border_action = "border" space border_const
 
@@ -100,7 +100,7 @@ i3_resize_action = resize_relative_action / resize_absolute_action
 resize_relative_action = "resize" space ( "shrink" / "grow" ) space ("width" / "height") space measurement
 resize_absolute_action = "resize" space "set" space measurement space measurement
 exec_command = "exec" space exec_bash
-mode_action = "mode" space (quoted_string  / variable_name / variable )
+mode_command = "mode" space (quoted_string  / variable_name / variable )
 exec_bash = any_chars
 client_statement = "client." client_statement_tail
 client_statement_tail = client_focused_statement / client_focused_inactive_statement / client_unfocused_statement / client_urgent_statement / client_placeholder_statement / client_background_statement
