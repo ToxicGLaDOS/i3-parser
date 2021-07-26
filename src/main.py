@@ -8,6 +8,7 @@ from commands.fullscreen import *
 from commands.exec import *
 from commands.mode import *
 from commands.focus import *
+from commands.kill import *
 import os
 
 class BindOption(Enum): 
@@ -163,6 +164,23 @@ class I3ConfigVisitor(NodeVisitor):
     def visit_exec_command(self, node, exec_command):
         _, space, command = exec_command
         return ExecCommand(command, spacing=[space])
+
+    def visit_kill_command(self, node, kill_command):
+        spacing = []
+        target = KillTarget.NONE
+        _, space_target = kill_command
+        if type(space_target) == list:
+            space_target, = space_target
+            space, target = space_target
+            spacing = [space]
+            target, = target
+            target = target.text
+            target = KillTarget.from_string(target)
+
+        return KillCommand(target, spacing=spacing)
+        
+
+
 
     def visit_mode_command(self, node, mode_command):
         _, space, mode_name = mode_command
