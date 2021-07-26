@@ -7,6 +7,7 @@ from commands.move import *
 from commands.fullscreen import *
 from commands.exec import *
 from commands.mode import *
+from commands.focus import *
 import os
 
 class BindOption(Enum): 
@@ -178,6 +179,51 @@ class I3ConfigVisitor(NodeVisitor):
             mode_name = mode_name.text
         return ModeCommand(mode_name, spacing=[space])
 
+    def visit_focus_command(self, node, focus_command):
+        _, space, focus_instance_or_direction = focus_command
+        focus_instance_or_direction, = focus_instance_or_direction
+
+        if type(focus_instance_or_direction) == Direction:
+            direction = focus_instance_or_direction
+            return FocusDirection(direction, spacing=[space])
+        else:
+            focus_instance = focus_instance_or_direction
+            focus_instance._add_spacing_reversed(space)
+            return focus_instance
+
+    def visit_focus_mode(self, node, focus_mode):
+        focus_mode, = focus_mode
+        focus_mode = focus_mode.text
+        return FocusMode(FocusModeOption.from_string(focus_mode), spacing=[])
+
+    def visit_focus_target(self, node, focus_target):
+        focus_target, = focus_target
+        focus_target = focus_target.text
+        return FocusTarget(FocusTargetOption.from_string(focus_target), spacing=[])
+
+    def visit_focus_output(self, node, focus_output):
+        _, space, output_name = focus_output
+        output_name = output_name.text
+        return FocusOutput(output_name, spacing=[space])
+
+    def visit_focus_relative(self, node, focus_relative):
+        sibling_keyword = False
+        spacing = []
+        relative, space_sibling = focus_relative
+        relative, = relative
+        relative = relative.text
+        if type(space_sibling) == list:
+            space_sibling, = space_sibling
+            space, sibling = space_sibling
+            sibling_keyword = True
+            spacing.append(space)
+
+        return FocusRelative(FocusRelativeOption.from_string(relative), sibling_keyword, spacing=spacing)
+
+    def visit_direction(self, node, direction):
+        direction, = direction
+        return Direction.from_string(direction.text)
+
     def visit_bind_actions(self, node, bind_actions):
         bind_actions, = bind_actions
         if type(bind_actions) == list:
@@ -272,9 +318,6 @@ class I3ConfigVisitor(NodeVisitor):
     def visit_move_direction(self, node, move_direction):
         move_command = None
         direction, space_measurement = move_direction
-        direction, = direction
-        direction = direction.text
-        direction = Direction.from_string(direction)
         if type(space_measurement) == list:
             space_measurement, = space_measurement
             space, measurement = space_measurement

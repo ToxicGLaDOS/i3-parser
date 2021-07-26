@@ -56,7 +56,7 @@ bind_statement = ( "bindsym" / "bindcode" ) (space bind_option)*  space key (spa
 bind_option = "--release" / "--border" / "--whole-window" / "--exclude-titlebar"
 
 bind_actions = (bind_action space ?  ("," / ";") space ? bind_actions) / bind_action
-bind_action = exec_command / fullscreen_command / mode_command / focus_action / i3_action / i3_move_command / i3_split_action / i3_layout_action / i3_modify_float / i3_sticky_action / i3_workspace_command / i3_resize_action / scratch_show / border_action
+bind_action = exec_command / fullscreen_command / mode_command / focus_command / i3_action / i3_move_command / i3_split_action / i3_layout_action / i3_modify_float / i3_sticky_action / i3_workspace_command / i3_resize_action / scratch_show / border_action
 
 border_action = "border" space border_const
 
@@ -89,9 +89,11 @@ fullscreen_disable = "disable"
 fullscreen_global = "global"
 i3_layout_action = "layout" space layout
 layout = "stacking" / "tabbed" / "default" / ( "toggle" space "split" )
-focus_action = "focus" ( space "output" ) ? space (direction / focus_mode / focus_location)
-focus_mode = "mode_toggle"
-focus_location = "parent" / "child"
+focus_command = "focus" space (direction / focus_mode / focus_target / focus_relative / focus_output)
+focus_mode = "mode_toggle" / "tiling" / "floating"
+focus_target = "parent" / "child"
+focus_output = "output" space rest
+focus_relative = ("prev" / "next") (space "sibling")?
 direction = "left" / "right" / "up" / "down"
 i3_action = "kill" / "reload" / "restart" / "exit"
 i3_split_action = "split" space split_direction
