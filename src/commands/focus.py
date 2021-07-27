@@ -1,43 +1,22 @@
 from enum import Enum, auto
 from typing import Iterable
 from utils.all_spaces import all_spaces
-from utils.enums import Direction
+from utils.enums import Direction, LowercaseEnum
 from commands.command import Command
 
 
-class FocusModeOption(Enum):
+class FocusModeOption(LowercaseEnum):
     MODE_TOGGLE = auto()
     TILING = auto()
     FLOATING = auto()
 
-    @staticmethod
-    def from_string(s: str):
-        return FocusModeOption[s.upper()]
-    
-    def __str__(self):
-        return self.name.lower()
-
-class FocusTargetOption(Enum):
+class FocusTargetOption(LowercaseEnum):
     CHILD = auto()
     PARENT = auto()
-    
-    @staticmethod
-    def from_string(s: str):
-        return FocusTargetOption[s.upper()]
-    
-    def __str__(self):
-        return self.name.lower()
 
-class FocusRelativeOption(Enum):
+class FocusRelativeOption(LowercaseEnum):
     PREV = auto()
     NEXT = auto()
-
-    @staticmethod
-    def from_string(s: str):
-        return FocusRelativeOption[s.upper()]
-    
-    def __str__(self):
-        return self.name.lower()
 
 class FocusCommand(Command):
     pass

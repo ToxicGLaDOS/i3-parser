@@ -1,19 +1,14 @@
 from enum import Enum, auto
 from typing import Iterable
+from utils.enums import LowercaseEnum
 from utils.all_spaces import all_spaces
 from commands.command import Command
 
 
-class KillTarget(Enum):
+class KillTarget(LowercaseEnum):
     NONE = auto()
     WINDOW = auto()
     CLIENT = auto()
-
-    def from_string(s: str):
-        return KillTarget[s.upper()]
-    
-    def __str__(self):
-        return self.name.lower()
 
 class KillCommand(Command):
     def __init__(self, target: KillTarget, spacing: Iterable[str] = all_spaces):

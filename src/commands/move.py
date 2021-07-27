@@ -22,16 +22,13 @@ class I3MoveTarget(Enum):
         elif self.value == I3MoveTarget.NO_AUTO_BACK_AND_FORTH.value:
             return "--no-auto-back-and-forth"
 
-class I3MoveDestination(Enum):
+class I3MoveDestination(LowercaseEnum):
     OUTPUT = auto()
     MARK = auto()
     WORKSPACE = auto()
     POSITION = auto()
 
-    def __str__(self):
-        return self.name.lower()
-
-class I3MovePositionKind(Enum):
+class I3MovePositionKind(LowercaseEnum):
     CENTER = auto()
     MOUSE = auto()
     CURSOR = auto()
