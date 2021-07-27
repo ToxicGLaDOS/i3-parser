@@ -1,5 +1,13 @@
 from enum import Enum, auto
 
+class LowercaseEnum(Enum):
+    @classmethod
+    def from_string(cls, s: str):
+        return cls[s.upper()]
+    
+    def __str__(self):
+        return self.name.lower()
+
 class Direction(Enum):
     LEFT = auto()
     UP = auto()

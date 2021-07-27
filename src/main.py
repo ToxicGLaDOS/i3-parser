@@ -9,6 +9,7 @@ from commands.exec import *
 from commands.mode import *
 from commands.focus import *
 from commands.kill import *
+from commands.layout import *
 import os
 
 class BindOption(Enum): 
@@ -178,9 +179,44 @@ class I3ConfigVisitor(NodeVisitor):
             target = KillTarget.from_string(target)
 
         return KillCommand(target, spacing=spacing)
-        
 
+    def visit_layout_toggle(self, node, layout_toggle):
+        _, space, layout = layout_toggle
+        layout, = layout
+        layout._add_spacing_reversed(space)
+        return layout
 
+    def visit_layout_toggle_single(self, node, layout_toggle_single):
+        split_or_all = layout_toggle_single
+        split_or_all, = split_or_all
+        return LayoutToggle(LayoutToggleOption.from_string(split_or_all), spacing=[])
+
+    def visit_layout_toggle_multiple(self, node, layout_toggle_multiple):
+        toggle_options = []
+        spacing = []
+        toggle0, space_toggles = layout_toggle_multiple
+        toggle_options.append(toggle0)
+        for space_toggle in space_toggles:
+            space, toggle = space_toggle
+            spacing.append(space)
+            toggle_options.append(LayoutToggleBetweenOption.from_string(toggle))
+
+        return LayoutToggleBetween(toggle_options, spacing=spacing)
+
+    def visit_i3_layout_command(self, node, i3_layout_command):
+        _, space, layout_command = i3_layout_command
+        layout_command, = layout_command
+        if type(layout_command) == str:
+            layout_mode = layout_command
+            return LayoutSet(LayoutMode.from_string(layout_mode), spacing=[space])
+        else:
+            layout_command._add_spacing_reversed(space)
+            return layout_command
+
+    def visit_layout_multiple_option(self, node, layout_multiple_option):
+        # This is always a list containing one string so
+        # we just peel off the list layer
+        return layout_multiple_option[0]
 
     def visit_mode_command(self, node, mode_command):
         _, space, mode_name = mode_command
@@ -361,7 +397,6 @@ class I3ConfigVisitor(NodeVisitor):
         spacing.extend(move_to_position.spacing)
         return MoveToAbsolutePosition(move_to_position.position, spacing=spacing)
 
-    
     def visit_move_position(self, node, move_position):
         position, = move_position
         if type(position) == list:
@@ -397,6 +432,18 @@ class I3ConfigVisitor(NodeVisitor):
         return node.text
     
     def visit_space(self, node, space):
+        return node.text
+
+    def visit_layout_default(self, node, layout_default):
+        return node.text
+
+    def visit_layout_all(self, node, layout_all):
+        return node.text
+
+    def visit_layout_split(self, node, layout_split):
+        return node.text
+
+    def visit_layout_mode(self, node, layout_mode):
         return node.text
 
     def generic_visit(self, node, visited_children):

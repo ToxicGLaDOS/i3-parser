@@ -33,7 +33,8 @@ window_edge_const = "none" / "vertical" / "horizontal" / "both" / "smart"
 
 geometry_statement = ("floating_minimum_size" / "floating_maximum_size") space signed_number (space?) "x" (space?) signed_number
 
-workspace_layout = "workspace_layout" space layout
+workspace_layout = "workspace_layout" space workspace_layout_mode
+workspace_layout_mode = layout_default / "stacking" / "stacked" / "tabbed"
 
 new_float_border = "new_float" space border_const
 new_window_border = "new_window" space border_const
@@ -56,7 +57,7 @@ bind_statement = ( "bindsym" / "bindcode" ) (space bind_option)*  space key (spa
 bind_option = "--release" / "--border" / "--whole-window" / "--exclude-titlebar"
 
 bind_actions = (bind_action space ?  ("," / ";") space ? bind_actions) / bind_action
-bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / i3_action / i3_move_command / i3_split_action / i3_layout_action / i3_modify_float / i3_sticky_action / i3_workspace_command / i3_resize_action / scratch_show / border_action
+bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / i3_action / i3_move_command / i3_split_action / i3_layout_command / i3_modify_float / i3_sticky_action / i3_workspace_command / i3_resize_action / scratch_show / border_action
 
 border_action = "border" space border_const
 
@@ -87,8 +88,17 @@ fullscreen_command = "fullscreen" (space (fullscreen_mode / fullscreen_global / 
 fullscreen_mode = ("enable" / "toggle") (space "global")?
 fullscreen_disable = "disable"
 fullscreen_global = "global"
-i3_layout_action = "layout" space layout
-layout = "stacking" / "tabbed" / "default" / ( "toggle" space "split" )
+
+i3_layout_command = "layout" space (layout_toggle / layout_mode / layout_default)
+layout_toggle = "toggle" space (layout_toggle_multiple / layout_toggle_single)
+layout_toggle_single = layout_split / layout_all
+layout_toggle_multiple = layout_multiple_option (space layout_multiple_option)+
+layout_multiple_option = layout_mode / layout_split
+layout_default = "default"
+layout_all = "all"
+layout_split = "split"
+layout_mode = "stacking" / "tabbed" / "splitv" / "splith"
+
 focus_command = "focus" space (direction / focus_mode / focus_target / focus_relative / focus_output)
 focus_mode = "mode_toggle" / "tiling" / "floating"
 focus_target = "parent" / "child"
