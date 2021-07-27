@@ -67,6 +67,7 @@ scratch_show = "scratchpad" space "show"
 scratch_hide = "scratchpad" space "hide"
 
 status_command = "status_command" space any_chars
+
 i3_move_command = "move" (space ("container" / "window" / "to" / "--no-auto-back-and-forth"))* space move_tail
 move_tail = move_to_output / move_to_mark / move_direction / move_to_position / move_to_absolute_position / move_workspace
 move_workspace = "workspace" space ("next_on_output" / "prev_on_output" / "next" / "prev" / "current" / move_workspace_to / number / rest)
@@ -75,7 +76,6 @@ move_to_mark = "mark" space rest
 move_direction = direction (space axiomatic_measurement)?
 move_to_position = "position" space move_position
 move_to_absolute_position = "absolute" space move_to_position
-
 move_workspace_to = "to" space "output" space word
 move_position = "center" / "mouse" / "cursor" / "pointer" / (axiomatic_measurement space axiomatic_measurement)
 
@@ -84,6 +84,7 @@ workspace_const = (quoted_string /  workspace_sentinels / variable_name / number
 workspace_sentinels = "back_and_forth"
 i3_sticky_action = "sticky" space ("enable" / "disable" / "toggle")
 i3_modify_float = "floating" space ( "enable" / "toggle" / "disable") (space "border" space "pixel" space number)?
+
 fullscreen_command = "fullscreen" (space (fullscreen_mode / fullscreen_global / fullscreen_disable))?
 fullscreen_mode = ("enable" / "toggle") (space "global")?
 fullscreen_disable = "disable"
@@ -104,6 +105,7 @@ focus_mode = "mode_toggle" / "tiling" / "floating"
 focus_target = "parent" / "child"
 focus_output = "output" space rest
 focus_relative = ("prev" / "next") (space "sibling")?
+
 direction = "left" / "right" / "up" / "down"
 kill_command = "kill" (space ("window" / "client"))?
 i3_action = "reload" / "restart" / "exit"
@@ -112,9 +114,12 @@ split_direction = "h" / "v"
 i3_resize_action = resize_relative_action / resize_absolute_action
 resize_relative_action = "resize" space ( "shrink" / "grow" ) space ("width" / "height") space measurement
 resize_absolute_action = "resize" space "set" space measurement space measurement
-exec_command = "exec" space exec_bash
+
 mode_command = "mode" space (quoted_string  / variable_name / variable )
+
+exec_command = "exec" space exec_bash
 exec_bash = any_chars
+
 client_statement = "client." client_statement_tail
 client_statement_tail = client_focused_statement / client_focused_inactive_statement / client_unfocused_statement / client_urgent_statement / client_placeholder_statement / client_background_statement
 client_focused_statement = "focused" space color space color space color space color space color
