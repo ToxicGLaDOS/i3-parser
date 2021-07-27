@@ -6,6 +6,7 @@ from commands.command import Command
 
 class ModeCommand(Command):
     def __init__(self, mode_name: str, spacing: Iterable[str] = all_spaces):
+        super().__init__()
         self.mode_name = mode_name
         self.spacing = spacing
     

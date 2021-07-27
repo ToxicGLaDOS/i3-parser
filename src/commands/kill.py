@@ -12,6 +12,7 @@ class KillTarget(LowercaseEnum):
 
 class KillCommand(Command):
     def __init__(self, target: KillTarget, spacing: Iterable[str] = all_spaces):
+        super().__init__()
         self.target = target
         self.spacing = spacing
 

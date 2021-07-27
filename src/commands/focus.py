@@ -23,6 +23,7 @@ class FocusCommand(Command):
 
 class FocusMode(FocusCommand):
     def __init__(self, mode: FocusModeOption, spacing: Iterable[str] = all_spaces):
+        super().__init__()
         self.mode = mode
         self.spacing = spacing
     
@@ -31,6 +32,7 @@ class FocusMode(FocusCommand):
 
 class FocusDirection(FocusCommand):
     def __init__(self, direction: Direction, spacing: Iterable[str] = all_spaces):
+        super().__init__()
         self.direction = direction
         self.spacing = spacing
 
@@ -39,6 +41,7 @@ class FocusDirection(FocusCommand):
 
 class FocusTarget(FocusCommand):
     def __init__(self, target: FocusTargetOption, spacing: Iterable[str] = all_spaces):
+        super().__init__()
         self.target = target
         self.spacing = spacing
     
@@ -47,6 +50,7 @@ class FocusTarget(FocusCommand):
 
 class FocusOutput(FocusCommand):
     def __init__(self, output: str, spacing: Iterable[str] = all_spaces):
+        super().__init__()
         self.output = output
         self.spacing = spacing
     
@@ -55,6 +59,7 @@ class FocusOutput(FocusCommand):
 
 class FocusRelative(FocusCommand):
     def __init__(self, relative: FocusRelativeOption, sibling: bool = False, spacing: Iterable[str] = all_spaces):
+        super().__init__()
         self.relative = relative
         self.sibling = sibling
         self.spacing = spacing
