@@ -10,6 +10,7 @@ from commands.mode import *
 from commands.focus import *
 from commands.kill import *
 from commands.layout import *
+from commands.direct import *
 import os
 
 class BindOption(Enum): 
@@ -155,6 +156,10 @@ class I3ConfigVisitor(NodeVisitor):
     
     def visit_fullscreen_global(self, node, fullscreen_global):
         return FullscreenCommand(FullscreenArgument.NONE, is_global=True, spacing=[])
+
+    def visit_direct_command(self, node, direct_command):
+        direct_command, = direct_command
+        return DirectCommand(DirectCommandArgument.from_string(direct_command.text))
 
     def visit_statement_no_line(self, node, statement_no_line):
         statement_no_line, = statement_no_line
