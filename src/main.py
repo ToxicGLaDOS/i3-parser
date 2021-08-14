@@ -14,6 +14,7 @@ from commands.direct import *
 from commands.split import *
 from commands.floating import *
 from commands.sticky import *
+from commands.workspace import *
 import os
 
 class BindOption(Enum): 
@@ -183,6 +184,32 @@ class I3ConfigVisitor(NodeVisitor):
     def visit_sticky_command(self, node, sticky_command):
         _, space, enableDisableToggle = sticky_command
         return StickyCommand(enableDisableToggle, spacing=[space])
+
+    def visit_workspace_command(self, node, workspace_command):
+        _, space, workspace_command, = workspace_command
+        workspace_command._add_spacing_reversed(space)
+        return workspace_command
+
+    def visit_workspace_params(self, node, workspace_params):
+        workspace_params, = workspace_params
+        if isinstance(workspace_params, WorkspaceCommand):
+            return workspace_params
+        # In this case it matched the "rest" part in the grammer
+        else:
+            workspace_label = workspace_params.text
+            return WorkspaceLabeled(workspace_label, spacing=[])
+
+    def visit_workspace_direction(self, node, workspace_direction):
+        workspace_direction, = workspace_direction
+        return WorkspaceDirection(WorkspaceDirectionOption.from_string(workspace_direction.text), spacing=[])
+
+    def visit_workspace_number(self, node, workspace_number):
+        _, space, workspace_number, = workspace_number
+        return WorkspaceNumber(int(workspace_number.text), spacing=[space])
+
+    def visit_workspace_back_and_forth(self, node, workspace_back_and_forth):
+        workspace_back_and_forth, = workspace_back_and_forth
+        return WorkspaceBackAndForth(spacing=[])
 
     def visit_statement_no_line(self, node, statement_no_line):
         statement_no_line, = statement_no_line

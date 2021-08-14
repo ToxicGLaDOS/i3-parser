@@ -12,7 +12,7 @@ line = comment / statement
 statement = ( space * ) statement_no_line newline
 statement_no_line = bind_statement / geometry_statement / mouse_warping_statement / workspace_layout / workspace_output / yes_no_statement / set_statement / status_command / font_statement / float_key_statement / workspace_buttons / popup_fullscreen_action / exec_always / exec_command / window_event / assign_statement / no_focus_statement / orientation_statement / new_float_border / new_window_border / hide_edge_borders_statement / set_from_resource / bar_position_statement / client_statement/ colors_statement / empty_statement
 
-workspace_output = "workspace" space workspace_const space "output" space word
+workspace_output = "workspace" space workspace_params space "output" space word
 yes_no_statement =  ( "workspace_auto_back_and_forth" / "force_focus_wrapping" / "focus_follows_mouse" / "force_xinerama") space yes_no
 colors_statement = ("separator" space color) / ("background" space color) / ("statusline" space color) / ("focused_workspace" space color space color space color) / ("active_workspace" space color space color space color) / ("inactive_workspace" space color space color space color) / ("urgent_workspace" space color space color space color)
 bar_position_statement = "position" space ("top" / "bottom")
@@ -24,7 +24,7 @@ key_value = variable_name "=" quoted_string
 mouse_warping_statement = "mouse_warping" space ( "none" / "output" )
 
 
-assign_statement = "assign" space window_specifier space ("→" space)? workspace_const
+assign_statement = "assign" space window_specifier space ("→" space)? workspace_params
 no_focus_statement = "no_focus" space window_specifier
 
 hide_edge_borders_statement = "hide_edge_borders" space window_edge_const
@@ -57,7 +57,7 @@ bind_statement = ( "bindsym" / "bindcode" ) (space bind_option)*  space key (spa
 bind_option = "--release" / "--border" / "--whole-window" / "--exclude-titlebar"
 
 bind_actions = (bind_action space ?  ("," / ";") space ? bind_actions) / bind_action
-bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / direct_command / i3_move_command / split_command / i3_layout_command / floating_command / sticky_command / i3_workspace_command / i3_resize_action / scratch_show / border_action
+bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / direct_command / i3_move_command / split_command / i3_layout_command / floating_command / sticky_command / workspace_command / i3_resize_action / scratch_show / border_action
 
 border_action = "border" space border_const
 
@@ -79,9 +79,12 @@ move_to_absolute_position = "absolute" space move_to_position
 move_workspace_to = "to" space "output" space word
 move_position = "center" / "mouse" / "cursor" / "pointer" / (axiomatic_measurement space axiomatic_measurement)
 
-i3_workspace_command = "workspace" space workspace_const
-workspace_const = (quoted_string /  workspace_sentinels / variable_name / number)
-workspace_sentinels = "back_and_forth"
+workspace_command = "workspace" space workspace_params
+workspace_params = (workspace_number / workspace_direction / workspace_back_and_forth / rest)
+workspace_number = "number" space number
+workspace_direction = "next_on_output" / "prev_on_output" / "next" / "prev"
+workspace_back_and_forth = "back_and_forth"
+
 sticky_command = "sticky" space enable_disable_toggle
 floating_command = "floating" space enable_disable_toggle
 enable_disable_toggle = "enable" / "toggle" / "disable"
