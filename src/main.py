@@ -16,6 +16,7 @@ from commands.floating import *
 from commands.sticky import *
 from commands.workspace import *
 from commands.resize import *
+from commands.scratchpad import *
 import os
 
 class BindOption(Enum): 
@@ -309,6 +310,10 @@ class I3ConfigVisitor(NodeVisitor):
         if type(statement_no_line) == ExecCommand:
             with open("output.config", 'a') as output:
                 output.write(f"{str(statement_no_line)}\n")
+
+    def visit_scratchpad_command(self, node, scratchpad_command):
+        _, space, _, = scratchpad_command
+        return ScratchpadCommand(spacing=[space])
 
     def visit_exec_command(self, node, exec_command):
         _, space, command = exec_command

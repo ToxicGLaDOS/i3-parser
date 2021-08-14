@@ -57,14 +57,13 @@ bind_statement = ( "bindsym" / "bindcode" ) (space bind_option)*  space key (spa
 bind_option = "--release" / "--border" / "--whole-window" / "--exclude-titlebar"
 
 bind_actions = (bind_action space ?  ("," / ";") space ? bind_actions) / bind_action
-bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / direct_command / i3_move_command / split_command / i3_layout_command / floating_command / sticky_command / workspace_command / resize_command / scratch_show / border_action
+bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / direct_command / i3_move_command / split_command / i3_layout_command / floating_command / sticky_command / workspace_command / resize_command / scratchpad_command / border_action
 
 border_action = "border" space border_const
 
 key = word
 
-scratch_show = "scratchpad" space "show"
-scratch_hide = "scratchpad" space "hide"
+scratchpad_command = "scratchpad" space "show"
 
 status_command = "status_command" space any_chars
 
