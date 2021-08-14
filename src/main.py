@@ -13,6 +13,7 @@ from commands.layout import *
 from commands.direct import *
 from commands.split import *
 from commands.floating import *
+from commands.sticky import *
 import os
 
 class BindOption(Enum): 
@@ -178,6 +179,10 @@ class I3ConfigVisitor(NodeVisitor):
     def visit_enable_disable_toggle(self, node, enable_disable_toggle):
         enable_disable_toggle, = enable_disable_toggle
         return EnableDisableToggle.from_string(enable_disable_toggle.text)
+
+    def visit_sticky_command(self, node, sticky_command):
+        _, space, enableDisableToggle = sticky_command
+        return StickyCommand(enableDisableToggle, spacing=[space])
 
     def visit_statement_no_line(self, node, statement_no_line):
         statement_no_line, = statement_no_line
