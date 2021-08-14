@@ -57,7 +57,7 @@ bind_statement = ( "bindsym" / "bindcode" ) (space bind_option)*  space key (spa
 bind_option = "--release" / "--border" / "--whole-window" / "--exclude-titlebar"
 
 bind_actions = (bind_action space ?  ("," / ";") space ? bind_actions) / bind_action
-bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / direct_command / i3_move_command / split_command / i3_layout_command / floating_command / sticky_command / workspace_command / i3_resize_action / scratch_show / border_action
+bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / direct_command / i3_move_command / split_command / i3_layout_command / floating_command / sticky_command / workspace_command / resize_command / scratch_show / border_action
 
 border_action = "border" space border_const
 
@@ -116,9 +116,15 @@ kill_command = "kill" (space ("window" / "client"))?
 direct_command = "reload" / "restart" / "exit" / "open"
 split_command = "split" space split_direction
 split_direction = "horizontal" / "vertical" / "toggle" / "h" / "v" / "t"
-i3_resize_action = resize_relative_action / resize_absolute_action
-resize_relative_action = "resize" space ( "shrink" / "grow" ) space ("width" / "height") space measurement
-resize_absolute_action = "resize" space "set" space measurement space measurement
+resize_command = "resize" space (resize_relative / resize_absolute)
+# Technically the first axiomatic_measurement has to specify px or be empty. This is caught in the visitor cause it makes the grammar simpler
+resize_relative = ( "shrink" / "grow" ) space resize_direction (space axiomatic_measurement (space "or" space axiomatic_measurement)?)?
+resize_direction = "left" / "right" / "up" / "down" / "width" / "height"
+resize_absolute = "set" space (resize_both / resize_width / resize_height)
+resize_width = ("width" space)? axiomatic_measurement
+resize_height = ("height" space)? axiomatic_measurement
+resize_both = resize_width space resize_height
+
 
 mode_command = "mode" space (quoted_string  / variable_name / variable )
 

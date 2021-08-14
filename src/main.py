@@ -15,6 +15,7 @@ from commands.split import *
 from commands.floating import *
 from commands.sticky import *
 from commands.workspace import *
+from commands.resize import *
 import os
 
 class BindOption(Enum): 
@@ -210,6 +211,98 @@ class I3ConfigVisitor(NodeVisitor):
     def visit_workspace_back_and_forth(self, node, workspace_back_and_forth):
         workspace_back_and_forth, = workspace_back_and_forth
         return WorkspaceBackAndForth(spacing=[])
+
+    def visit_resize_command(self, node, resize_command):
+        _, space, resize_command, = resize_command
+        resize_command, = resize_command
+        resize_command._add_spacing_reversed(space)
+        return resize_command
+
+    def visit_resize_absolute(self, node, resize_absolute):
+        _, space0, resize_type = resize_absolute
+
+        resize_type, = resize_type
+        label = resize_type[0]
+        spacing = [space0]
+        if label == "width" or label == "height":
+            label, keyword_explicit, space1, measurement = resize_type
+            if space1:
+                spacing.append(space1)
+            if label == "width": 
+                return ResizeAbsolute(width_explicit=keyword_explicit, width_measurement=measurement, spacing=spacing)
+            else:
+                return ResizeAbsolute(height_explicit=keyword_explicit, height_measurement=measurement, spacing=spacing)
+        else:
+            label, resize_width, space2, resize_height = resize_type
+            _, width_explicit, space1, width_measurement = resize_width
+            _, height_explicit, space3, height_measurement = resize_height
+            if space1:
+                spacing.append(space1)
+            spacing.append(space2)
+            if space3:
+                spacing.append(space3)
+            return ResizeAbsolute(width_explicit=width_explicit, width_measurement=width_measurement, height_explicit=height_explicit, height_measurement=height_measurement, spacing=spacing)
+   
+    def visit_resize_width(self, node, resize_width) ->  tuple[str, bool, str, Measurement]:
+        """
+        str: Just a label so we know whether it's height or width in visit_resize_absolute
+        bool: Whether or not the word "width" was used
+        str: the space between "width" and the measurement (empty string if "width" was not specified)
+        Measurement: a measurement object representing the measurement
+        """
+        width_space_optional, measurement, = resize_width
+        if type(width_space_optional) == list:
+            width_space_optional, = width_space_optional
+            _, space, = width_space_optional
+            return ("width", True, space, measurement)
+        else:
+            return ("width", False, "", measurement)
+ 
+    def visit_resize_height(self, node, resize_height) -> tuple[str, bool, str, Measurement]:
+        """
+        str: Just a label so we know whether it's height or width in visit_resize_absolute
+        bool: Whether or not the word "height" was used
+        str: the space between "height" and the measurement (empty string if "height" was not specified)
+        Measurement: a measurement object representing the measurement
+        """
+        height_space_optional, measurement, = resize_height
+        if type(height_space_optional) == list:
+            height_space_optional, = height_space_optional
+            _, space, = height_space_optional
+            return ("height", True, space, measurement)
+        else:
+            return ("height", False, "", measurement)
+
+    def visit_resize_both(self, node, resize_both) -> tuple[str, tuple[str, bool, str, Measurement], str, tuple[str, bool, str, Measurement]]:
+        resize_width, space, resize_height = resize_both
+        return ("both", resize_width, space, resize_height)
+
+    def visit_resize_relative(self, node, resize_relative):
+        shrink_grow, space0, direction, measurement_optionals = resize_relative
+        shrink_grow, = shrink_grow
+        shrink_grow = shrink_grow.text
+        resize_relative_kind = ResizeRelativeKind.from_string(shrink_grow)
+
+        if type(measurement_optionals) == list:
+            measurement_optionals, = measurement_optionals
+            space1, pixel_measurement, measurement_optionals = measurement_optionals
+            # The first measurement must be in pixels or left empty (which is interpretted as pixels in i3)
+            # This could be solved in the grammar, but it's more trouble than it worth imo
+            assert pixel_measurement.units == Unit.PX or pixel_measurement.units == Unit.NONE
+            if type(measurement_optionals) == list:
+                measurement_optionals, = measurement_optionals
+                space2, _, space3, percentage_measurement = measurement_optionals
+                # Similar to the comment above this measurement must be in ppt or left empty (which is interpretted as ppt in i3)
+                assert percentage_measurement.units == Unit.PPT or pixel_measurement.units == Unit.NONE
+                return ResizeRelative(resize_relative_kind, direction, pixel_measurement, percentage_measurement, spacing=[space0, space1, space2, space3])
+            else:
+                return ResizeRelative(resize_relative_kind, direction, pixel_measurement, spacing=[space0, space1])
+        else:
+            return ResizeRelative(resize_relative_kind, direction, spacing=[space0])
+
+    def visit_resize_direction(self, node, resize_direction):
+        resize_direction, = resize_direction
+        return ResizeDirection.from_string(resize_direction.text)
 
     def visit_statement_no_line(self, node, statement_no_line):
         statement_no_line, = statement_no_line
@@ -513,9 +606,10 @@ if __name__ == "__main__":
     for test_file in os.listdir("tests"):
         if os.path.exists("output.config"):
             os.remove("output.config")
-        test_file = "tests/" + test_file 
+        test_file = "tests/" + test_file
+        print(f"Parsing {test_file}")
         with open(test_file, 'r') as config_file:
-            config_text = config_file.read() 
+            config_text = config_file.read()
         ast = g.parse(config_text)
         I3ConfigVisitor().visit(ast)
         with open(test_file, 'r') as original:
