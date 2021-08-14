@@ -57,7 +57,7 @@ bind_statement = ( "bindsym" / "bindcode" ) (space bind_option)*  space key (spa
 bind_option = "--release" / "--border" / "--whole-window" / "--exclude-titlebar"
 
 bind_actions = (bind_action space ?  ("," / ";") space ? bind_actions) / bind_action
-bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / direct_command / i3_move_command / i3_split_action / i3_layout_command / i3_modify_float / i3_sticky_action / i3_workspace_command / i3_resize_action / scratch_show / border_action
+bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / direct_command / i3_move_command / split_command / i3_layout_command / i3_modify_float / i3_sticky_action / i3_workspace_command / i3_resize_action / scratch_show / border_action
 
 border_action = "border" space border_const
 
@@ -109,8 +109,8 @@ focus_relative = ("prev" / "next") (space "sibling")?
 direction = "left" / "right" / "up" / "down"
 kill_command = "kill" (space ("window" / "client"))?
 direct_command = "reload" / "restart" / "exit" / "open"
-i3_split_action = "split" space split_direction
-split_direction = "h" / "v"
+split_command = "split" space split_direction
+split_direction = "horizontal" / "vertical" / "toggle" / "h" / "v" / "t"
 i3_resize_action = resize_relative_action / resize_absolute_action
 resize_relative_action = "resize" space ( "shrink" / "grow" ) space ("width" / "height") space measurement
 resize_absolute_action = "resize" space "set" space measurement space measurement

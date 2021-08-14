@@ -11,6 +11,7 @@ from commands.focus import *
 from commands.kill import *
 from commands.layout import *
 from commands.direct import *
+from commands.split import *
 import os
 
 class BindOption(Enum): 
@@ -160,6 +161,14 @@ class I3ConfigVisitor(NodeVisitor):
     def visit_direct_command(self, node, direct_command):
         direct_command, = direct_command
         return DirectCommand(DirectCommandArgument.from_string(direct_command.text))
+
+    def visit_split_command(self, node, split_command):
+        _, space, split_direction = split_command
+        return SplitCommand(split_direction, spacing=[space])
+
+    def visit_split_direction(self, node, split_direction):
+        split_direction, = split_direction
+        return SplitDirection.from_string(split_direction.text)
 
     def visit_statement_no_line(self, node, statement_no_line):
         statement_no_line, = statement_no_line
@@ -457,6 +466,9 @@ class I3ConfigVisitor(NodeVisitor):
 
 if __name__ == "__main__":
     g = build_grammar()
+    # This gets around a limitation where backslashes cannot be in f-strings
+    newline = "\n"
+    newline_replacement = "\\n"
     for test_file in os.listdir("tests"):
         if os.path.exists("output.config"):
             os.remove("output.config")
@@ -469,6 +481,6 @@ if __name__ == "__main__":
             with open("output.config", 'r') as output:
                 for original_line, output_line in zip(original, output):
                     if original_line != output_line:
-                        print(f"Original: '{original_line}'")
-                        print(f"Test:     '{output_line}'")
+                        print(f"Original: '{original_line.replace(newline, newline_replacement)}'")
+                        print(f"Test:     '{output_line.replace(newline, newline_replacement)}'")
         
