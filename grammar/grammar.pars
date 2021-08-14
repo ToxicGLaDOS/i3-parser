@@ -57,7 +57,7 @@ bind_statement = ( "bindsym" / "bindcode" ) (space bind_option)*  space key (spa
 bind_option = "--release" / "--border" / "--whole-window" / "--exclude-titlebar"
 
 bind_actions = (bind_action space ?  ("," / ";") space ? bind_actions) / bind_action
-bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / direct_command / i3_move_command / split_command / i3_layout_command / i3_modify_float / i3_sticky_action / i3_workspace_command / i3_resize_action / scratch_show / border_action
+bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / direct_command / i3_move_command / split_command / i3_layout_command / floating_command / i3_sticky_action / i3_workspace_command / i3_resize_action / scratch_show / border_action
 
 border_action = "border" space border_const
 
@@ -82,8 +82,10 @@ move_position = "center" / "mouse" / "cursor" / "pointer" / (axiomatic_measureme
 i3_workspace_command = "workspace" space workspace_const
 workspace_const = (quoted_string /  workspace_sentinels / variable_name / number)
 workspace_sentinels = "back_and_forth"
-i3_sticky_action = "sticky" space ("enable" / "disable" / "toggle")
-i3_modify_float = "floating" space ( "enable" / "toggle" / "disable") (space "border" space "pixel" space number)?
+i3_sticky_action = "sticky" space enable_disable_toggle
+floating_command = "floating" space enable_disable_toggle
+enable_disable_toggle = "enable" / "toggle" / "disable"
+
 
 fullscreen_command = "fullscreen" (space (fullscreen_mode / fullscreen_global / fullscreen_disable))?
 fullscreen_mode = ("enable" / "toggle") (space "global")?

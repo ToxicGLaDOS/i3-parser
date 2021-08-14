@@ -12,6 +12,7 @@ from commands.kill import *
 from commands.layout import *
 from commands.direct import *
 from commands.split import *
+from commands.floating import *
 import os
 
 class BindOption(Enum): 
@@ -169,6 +170,14 @@ class I3ConfigVisitor(NodeVisitor):
     def visit_split_direction(self, node, split_direction):
         split_direction, = split_direction
         return SplitDirection.from_string(split_direction.text)
+
+    def visit_floating_command(self, node, floating_command):
+        _, space, enableDisableToggle = floating_command
+        return FloatingCommand(enableDisableToggle, spacing=[space])
+
+    def visit_enable_disable_toggle(self, node, enable_disable_toggle):
+        enable_disable_toggle, = enable_disable_toggle
+        return EnableDisableToggle.from_string(enable_disable_toggle.text)
 
     def visit_statement_no_line(self, node, statement_no_line):
         statement_no_line, = statement_no_line

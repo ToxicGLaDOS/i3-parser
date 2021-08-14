@@ -8,6 +8,11 @@ class LowercaseEnum(Enum):
     def __str__(self):
         return self.name.lower()
 
+class EnableDisableToggle(LowercaseEnum):
+    ENABLE = auto()
+    DISABLE = auto()
+    TOGGLE = auto()
+
 class Direction(Enum):
     LEFT = auto()
     UP = auto()
