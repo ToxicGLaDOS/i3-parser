@@ -158,6 +158,7 @@ string_contents = ~'[^"\n]*'
 quote = "\""
 
 measurement = ((axiomatic_measurement space "or" space measurement) / axiomatic_measurement)
-axiomatic_measurement = number (space? ("ppt" / "px"))?
+axiomatic_measurement = number (space? unit)?
+unit = "ppt" / "px"
 number = ~"[0-9]+"
 signed_number = ( "-" ? ) number
