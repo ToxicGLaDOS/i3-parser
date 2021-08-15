@@ -17,6 +17,7 @@ from commands.sticky import *
 from commands.workspace import *
 from commands.resize import *
 from commands.scratchpad import *
+from commands.border import *
 import os
 
 class BindOption(Enum): 
@@ -314,6 +315,34 @@ class I3ConfigVisitor(NodeVisitor):
     def visit_scratchpad_command(self, node, scratchpad_command):
         _, space, _, = scratchpad_command
         return ScratchpadCommand(spacing=[space])
+
+    def visit_border_command(self, node, border_command):
+        _, space, border_argument, = border_command
+        return BorderCommand(border_argument, spacing=[space])
+
+    def visit_border_tail(self, node, border_tail):
+        border_tail, = border_tail
+        return border_tail
+
+    def visit_border_no_arg(self, node, border_no_arg):
+        border_no_arg, = border_no_arg
+        style = BorderStyle.from_string(border_no_arg.text)
+        return BorderArgument(style, spacing=[])
+
+    def visit_border_arg(self, node, border_arg):
+        border_arg, space_number = border_arg
+        border_arg, = border_arg
+        spacing = []
+        number = None
+        if type(space_number) == list:
+            space_number, = space_number
+            space, number = space_number
+            spacing.append(space)
+            number = int(number.text)
+
+
+        style = BorderStyle.from_string(border_arg.text)
+        return BorderArgument(style, number, spacing=spacing)
 
     def visit_exec_command(self, node, exec_command):
         _, space, command = exec_command

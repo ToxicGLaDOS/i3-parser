@@ -36,9 +36,11 @@ geometry_statement = ("floating_minimum_size" / "floating_maximum_size") space s
 workspace_layout = "workspace_layout" space workspace_layout_mode
 workspace_layout_mode = layout_default / "stacking" / "stacked" / "tabbed"
 
-new_float_border = "new_float" space border_const
-new_window_border = "new_window" space border_const
-border_const = ( "normal" / "none" / ("pixel" space number) )
+new_float_border = "new_float" space border_tail
+new_window_border = "new_window" space border_tail
+border_tail = border_arg / border_no_arg
+border_no_arg = "none" / "1pixel"
+border_arg = ("normal" / "pixel" / "toggle") (space number)?
 
 orientation_statement = "default_orientation" space orientation
 orientation = ("vertical" / "horizontal" / "auto" )
@@ -57,9 +59,9 @@ bind_statement = ( "bindsym" / "bindcode" ) (space bind_option)*  space key (spa
 bind_option = "--release" / "--border" / "--whole-window" / "--exclude-titlebar"
 
 bind_actions = (bind_action space ?  ("," / ";") space ? bind_actions) / bind_action
-bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / direct_command / i3_move_command / split_command / i3_layout_command / floating_command / sticky_command / workspace_command / resize_command / scratchpad_command / border_action
+bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / direct_command / i3_move_command / split_command / i3_layout_command / floating_command / sticky_command / workspace_command / resize_command / scratchpad_command / border_command
 
-border_action = "border" space border_const
+border_command = "border" space border_tail
 
 key = word
 
