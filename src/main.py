@@ -97,6 +97,17 @@ class I3Binding(object):
 
 class I3ConfigVisitor(NodeVisitor):
 
+    def visit_line(self, node, line):
+        space_optional, line = line
+        line, = line
+        with open("output.config", 'a') as out:
+            out.write(str(line) + '\n')
+        return line
+
+    def visit_statement(self, node, statement):
+        statement, _ = statement
+        return statement
+
     def visit_bind_statement(self, node, bind_statement):
         # bind_option0 and bind_option1 are either an 
         # empty node or a list of list of strings including the prepending space
@@ -126,8 +137,6 @@ class I3ConfigVisitor(NodeVisitor):
         
         
         binding = I3Binding(keyword, bind_options0, key, bind_options1, commands, separators, spacing)
-        with open("output.config", 'a') as out:
-            out.write(str(binding) + '\n')
         return binding
 
     def visit_fullscreen_command(self, node, fullscreen_command):
@@ -308,9 +317,7 @@ class I3ConfigVisitor(NodeVisitor):
 
     def visit_statement_no_line(self, node, statement_no_line):
         statement_no_line, = statement_no_line
-        if type(statement_no_line) == ExecCommand:
-            with open("output.config", 'a') as output:
-                output.write(f"{str(statement_no_line)}\n")
+        return statement_no_line
 
     def visit_scratchpad_command(self, node, scratchpad_command):
         _, space, _, = scratchpad_command
