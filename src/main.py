@@ -385,8 +385,8 @@ class I3ConfigVisitor(NodeVisitor):
 
         return LayoutToggleBetween(toggle_options, spacing=spacing)
 
-    def visit_i3_layout_command(self, node, i3_layout_command):
-        _, space, layout_command = i3_layout_command
+    def visit_layout_command(self, node, layout_command):
+        _, space, layout_command = layout_command
         layout_command, = layout_command
         if type(layout_command) == str:
             layout_mode = layout_command
@@ -498,12 +498,12 @@ class I3ConfigVisitor(NodeVisitor):
         bind_action, = bind_action
         return bind_action
 
-    def visit_i3_move_command(self, node, i3_move_command):
+    def visit_move_command(self, node, move_command):
         # _: literal "move"
         # space_move_targets: list of lists with 2 elements each containing [space, <the move target>]
         # space1: some amount of space
         # move_tail: the move tail as returned by the relavent visit_move_xxxx method
-        _, space_move_targets, space1, move_tail = i3_move_command
+        _, space_move_targets, space1, move_tail = move_command
         move_command, = move_tail
         move_command._add_spacing_reversed(space1)
         if type(space_move_targets) == list:

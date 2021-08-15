@@ -59,7 +59,7 @@ bind_statement = ( "bindsym" / "bindcode" ) (space bind_option)*  space key (spa
 bind_option = "--release" / "--border" / "--whole-window" / "--exclude-titlebar"
 
 bind_actions = (bind_action space ?  ("," / ";") space ? bind_actions) / bind_action
-bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / direct_command / i3_move_command / split_command / i3_layout_command / floating_command / sticky_command / workspace_command / resize_command / scratchpad_command / border_command
+bind_action = exec_command / fullscreen_command / mode_command / focus_command / kill_command / direct_command / move_command / split_command / layout_command / floating_command / sticky_command / workspace_command / resize_command / scratchpad_command / border_command
 
 border_command = "border" space border_tail
 
@@ -69,7 +69,7 @@ scratchpad_command = "scratchpad" space "show"
 
 status_command = "status_command" space any_chars
 
-i3_move_command = "move" (space ("container" / "window" / "to" / "--no-auto-back-and-forth"))* space move_tail
+move_command = "move" (space ("container" / "window" / "to" / "--no-auto-back-and-forth"))* space move_tail
 move_tail = move_to_output / move_to_mark / move_direction / move_to_position / move_to_absolute_position / move_workspace
 move_workspace = "workspace" space ("next_on_output" / "prev_on_output" / "next" / "prev" / "current" / move_workspace_to / number / rest)
 move_to_output = "output" space word
@@ -96,7 +96,7 @@ fullscreen_mode = ("enable" / "toggle") (space "global")?
 fullscreen_disable = "disable"
 fullscreen_global = "global"
 
-i3_layout_command = "layout" space (layout_toggle / layout_mode / layout_default)
+layout_command = "layout" space (layout_toggle / layout_mode / layout_default)
 layout_toggle = "toggle" space (layout_toggle_multiple / layout_toggle_single)
 layout_toggle_single = layout_split / layout_all
 layout_toggle_multiple = layout_multiple_option (space layout_multiple_option)+
