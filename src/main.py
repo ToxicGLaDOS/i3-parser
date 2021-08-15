@@ -18,6 +18,7 @@ from commands.workspace import *
 from commands.resize import *
 from commands.scratchpad import *
 from commands.border import *
+from statements.comment import *
 import os
 
 class BindOption(Enum): 
@@ -634,6 +635,10 @@ class I3ConfigVisitor(NodeVisitor):
 
     def visit_layout_mode(self, node, layout_mode):
         return node.text
+
+    def visit_comment(self, node, comment):
+        _, comment, _ = comment
+        return CommentStatement(comment)
 
     def generic_visit(self, node, visited_children):
         return visited_children or node
