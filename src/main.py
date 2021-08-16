@@ -19,6 +19,7 @@ from commands.resize import *
 from commands.scratchpad import *
 from commands.border import *
 from statements.comment import *
+from statements.workspace import *
 import os
 
 class BindOption(Enum): 
@@ -351,6 +352,10 @@ class I3ConfigVisitor(NodeVisitor):
 
         style = BorderStyle.from_string(border_arg.text)
         return BorderArgument(style, number, spacing=spacing)
+
+    def visit_workspace_statement(self, node, workspace_statement):
+        _, space0, workspace_name, space1, _, space2, output_name = workspace_statement
+        return WorkspaceStatement(workspace_name.text, output_name.text, spacing=[space0, space1, space2])
 
     def visit_exec_command(self, node, exec_command):
         _, space, command = exec_command
