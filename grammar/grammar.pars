@@ -13,7 +13,7 @@ line = space? (comment / statement)
 statement = statement_no_line newline
 statement_no_line = bind_statement / geometry_statement / mouse_warping_statement / workspace_layout / workspace_statement / yes_no_statement / set_statement / font_statement / float_key_statement / workspace_buttons / popup_fullscreen_action / exec_always / exec_command / window_event / assign_statement / no_focus_statement / orientation_statement / new_float_border / new_window_border / hide_edge_borders_statement / set_from_resource / client_statement/ colors_statement / empty_statement
 
-workspace_statement = "workspace" space word space "output" space word
+workspace_statement = "workspace" space word_or_quoted_string space "output" space word_or_quoted_string
 yes_no_statement =  ( "workspace_auto_back_and_forth" / "force_focus_wrapping" / "focus_follows_mouse" / "force_xinerama") space yes_no
 colors_statement = ("separator" space color) / ("background" space color) / ("statusline" space color) / ("focused_workspace" space color space color space color) / ("active_workspace" space color space color space color) / ("inactive_workspace" space color space color space color) / ("urgent_workspace" space color space color space color)
 bar_position_statement = "position" space ("top" / "bottom")
