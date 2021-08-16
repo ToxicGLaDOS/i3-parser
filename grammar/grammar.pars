@@ -128,7 +128,7 @@ resize_height = ("height" space)? axiomatic_measurement
 resize_both = resize_width space resize_height
 
 
-mode_command = "mode" space (quoted_string  / variable_name / variable )
+mode_command = "mode" space rest
 
 exec_command = "exec" space exec_bash
 exec_bash = any_chars
@@ -158,7 +158,7 @@ dotted_name =  ( variable_name "." dotted_name ) / variable_name
 variable_name = ~"[a-zA-Z_][a-zA-Z_0-9]*"
 variable = "$" variable_name
 
-
+word_or_quoted_string = quoted_string / word
 quoted_variable = quote variable quote
 
 quoted_string = quote string_contents quote

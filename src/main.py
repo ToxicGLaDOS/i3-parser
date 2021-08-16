@@ -123,7 +123,7 @@ class I3ConfigVisitor(NodeVisitor):
         bind_options1 = []
         keyword, space_bind_option0, space0, key, space_bind_option1, space1, bind_actions = bind_statement
         keyword = keyword[0].text
-        key = key.text
+        key = key
         commands = bind_actions["commands"]
         spacing = bind_actions["spacing"]
         separators = bind_actions["separators"]
@@ -215,7 +215,7 @@ class I3ConfigVisitor(NodeVisitor):
             return workspace_params
         # In this case it matched the "rest" part in the grammer
         else:
-            workspace_label = workspace_params.text
+            workspace_label = workspace_params
             return WorkspaceLabeled(workspace_label, spacing=[])
 
     def visit_workspace_direction(self, node, workspace_direction):
@@ -360,12 +360,13 @@ class I3ConfigVisitor(NodeVisitor):
 
     def visit_workspace_statement(self, node, workspace_statement):
         _, space0, workspace_name, space1, _, space2, output_name = workspace_statement
-        return WorkspaceStatement(workspace_name.text, output_name.text, spacing=[space0, space1, space2])
+        return WorkspaceStatement(workspace_name, output_name, spacing=[space0, space1, space2])
 
     def visit_set_statement(self, node, set_statement):
         _, space0, variable_name, space1, value = set_statement
         _, variable_name = variable_name
-        return SetStatement(variable_name.text, value.text, spacing=[space0, space1])
+        return SetStatement(variable_name, value, spacing=[space0, space1])
+
 
     def visit_exec_command(self, node, exec_command):
         _, space, command = exec_command
@@ -425,17 +426,6 @@ class I3ConfigVisitor(NodeVisitor):
 
     def visit_mode_command(self, node, mode_command):
         _, space, mode_name = mode_command
-        mode_name, = mode_name
-        if type(mode_name) == list:
-            if len(mode_name) == 2:
-                _, mode_name = mode_name
-                mode_name = f"${mode_name.text}"
-            elif len(mode_name) == 3:
-                # The place holders are literal quotes
-                _, mode_name, _ = mode_name
-                mode_name = f"\"{mode_name.text}\""
-        else:
-            mode_name = mode_name.text
         return ModeCommand(mode_name, spacing=[space])
 
     def visit_focus_command(self, node, focus_command):
@@ -462,7 +452,7 @@ class I3ConfigVisitor(NodeVisitor):
 
     def visit_focus_output(self, node, focus_output):
         _, space, output_name = focus_output
-        output_name = output_name.text
+        output_name = output_name
         return FocusOutput(output_name, spacing=[space])
 
     def visit_focus_relative(self, node, focus_relative):
@@ -555,21 +545,21 @@ class I3ConfigVisitor(NodeVisitor):
 
     def visit_move_to_output(self, node, move_to_output):
         _, space, word = move_to_output
-        word = word.text
+        word = word
         spacing = [space]
         move_command = MoveToOutput(word, spacing=spacing)
         return move_command
 
     def visit_move_workspace_to(self, node, move_workspace_to) -> MoveWorkspaceTo:
         _, space0, _, space1, output_name = move_workspace_to
-        output_name = output_name.text
+        output_name = output_name
         spacing = [space0, space1]
         move_command = MoveWorkspaceTo(output_name, spacing=spacing)
         return move_command
 
     def visit_move_to_mark(self, node, move_to_mark) -> MoveToMark:
         _, space, mark_name = move_to_mark
-        mark_name = mark_name.text
+        mark_name = mark_name
         move_command = MoveToMark(mark_name)
         move_command._add_spacing_reversed(space)
         return move_command
@@ -657,6 +647,23 @@ class I3ConfigVisitor(NodeVisitor):
 
     def visit_empty_statement(self, node, empty_statement):
         return EmptyStatement()
+
+    def visit_word_or_quoted_string(self, node, word_or_quoted_string):
+        word_or_quoted_string, = word_or_quoted_string
+        return word_or_quoted_string
+
+    def visit_word(self, node, word):
+        return node.text
+
+    def visit_quoted_string(self, node, quoted_string):
+        _, string_contents, _ = quoted_string
+        return f'"{string_contents.text}"'
+
+    def visit_variable_name(self, node, variable_name):
+        return node.text
+
+    def visit_rest(self, node, rest):
+        return node.text
 
     def generic_visit(self, node, visited_children):
         return visited_children or node
