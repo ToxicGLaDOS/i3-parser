@@ -54,7 +54,7 @@ popup_action = "leave_fullscreen" / "smart" / "ignore"
 
 workspace_buttons = "workspace_buttons" space yes_no
 
-empty_statement = space*
+empty_statement = space?
 bind_statement = ( "bindsym" / "bindcode" ) (space bind_option)*  space key (space bind_option)* space bind_actions
 
 bind_option = "--release" / "--border" / "--whole-window" / "--exclude-titlebar"

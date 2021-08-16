@@ -20,6 +20,7 @@ from commands.scratchpad import *
 from commands.border import *
 from statements.comment import *
 from statements.workspace import *
+from statements.empty import *
 import os
 
 class BindOption(Enum): 
@@ -101,9 +102,12 @@ class I3ConfigVisitor(NodeVisitor):
 
     def visit_line(self, node, line):
         space_optional, line = line
+        space = ''
         line, = line
+        if type(space_optional) == list:
+            space, = space_optional
         with open("output.config", 'a') as out:
-            out.write(str(line) + '\n')
+            out.write(space + str(line) + '\n')
         return line
 
     def visit_statement(self, node, statement):
@@ -644,6 +648,9 @@ class I3ConfigVisitor(NodeVisitor):
     def visit_comment(self, node, comment):
         _, comment, _ = comment
         return CommentStatement(comment)
+
+    def visit_empty_statement(self, node, empty_statement):
+        return EmptyStatement()
 
     def generic_visit(self, node, visited_children):
         return visited_children or node
