@@ -649,19 +649,26 @@ if __name__ == "__main__":
     # This gets around a limitation where backslashes cannot be in f-strings
     newline = "\n"
     newline_replacement = "\\n"
-    for test_file in os.listdir("tests"):
-        if os.path.exists("output.config"):
-            os.remove("output.config")
-        test_file = "tests/" + test_file
-        print(f"Parsing {test_file}")
-        with open(test_file, 'r') as config_file:
-            config_text = config_file.read()
-        ast = g.parse(config_text)
-        I3ConfigVisitor().visit(ast)
-        with open(test_file, 'r') as original:
-            with open("output.config", 'r') as output:
-                for original_line, output_line in zip(original, output):
-                    if original_line != output_line:
-                        print(f"Original: '{original_line.replace(newline, newline_replacement)}'")
-                        print(f"Test:     '{output_line.replace(newline, newline_replacement)}'")
+
+    with open("diff.log", "w") as diff_file:
+        for test_file in os.listdir("tests"):
+            if os.path.exists("output.config"):
+                os.remove("output.config")
+            test_file = "tests/" + test_file
+            print(f"Parsing {test_file}")
+            with open(test_file, 'r') as config_file:
+                config_text = config_file.read()
+            ast = g.parse(config_text)
+            I3ConfigVisitor().visit(ast)
+            with open(test_file, 'r') as original:
+                with open("output.config", 'r') as output:
+                    for original_line, output_line in zip(original, output):
+                        if original_line != output_line:
+                            original_text = f"Original: '{original_line.replace(newline, newline_replacement)}'"
+                            test_text     = f"Test:     '{output_line.replace(newline, newline_replacement)}'"
+                            print(original_text)
+                            print(test_text)
+                            diff_file.write(original_text + "\n")
+                            diff_file.write(test_text + "\n")
+
         

@@ -12,3 +12,4 @@ venv
 __pycache__
 .test-pass-commit
 output.config
+diff.log
