@@ -22,6 +22,7 @@ from statements.comment import *
 from statements.workspace import *
 from statements.empty import *
 from statements.set import *
+from statements.font import *
 import os
 
 class BindOption(Enum): 
@@ -367,6 +368,9 @@ class I3ConfigVisitor(NodeVisitor):
         _, variable_name = variable_name
         return SetStatement(variable_name, value, spacing=[space0, space1])
 
+    def visit_font_statement(self, node, font_statement):
+        _, space, font_name = font_statement
+        return FontStatement(font_name, spacing=[space])
 
     def visit_exec_command(self, node, exec_command):
         _, space, command = exec_command
