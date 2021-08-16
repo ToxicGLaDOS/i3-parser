@@ -1,8 +1,9 @@
 result = ( block / line ) *
 
-block = mode_block / bar_block
-bar_block = "bar" space quote_block
-colors_block = "colors" space quote_block
+block = space? (mode_block / bar_block)
+bar_block = "bar" space "{" newline (space? (bar_statement / colors_block) newline)* "}" newline
+bar_statement = bar_position_statement / bar_status_command / font_statement
+colors_block = "colors" space "{" newline (space? colors_statement newline)* space "}"
 quote_block = ( space ? ) "{" newline (colors_block / lines)* ( space ? ) "}" newline
 mode_block = "mode" space (quoted_variable / quoted_string) quote_block
 
@@ -67,7 +68,7 @@ key = word
 
 scratchpad_command = "scratchpad" space "show"
 
-status_command = "status_command" space any_chars
+bar_status_command = "status_command" space any_chars
 
 move_command = "move" (space ("container" / "window" / "to" / "--no-auto-back-and-forth"))* space move_tail
 move_tail = move_to_output / move_to_mark / move_direction / move_to_position / move_to_absolute_position / move_workspace
@@ -146,7 +147,7 @@ font_statement = "font " any_chars
 color = ~"\#[0-9ABCDEF]{6}"
 any_chars = ~".*"
 octo = ~"\#"
-newline = ~"\n*"
+newline = ~"\n"
 yes_no = "yes" / "no"
 space = ~"[ \t]+"
 set_statement = "set " ( word / variable ) " " rest
