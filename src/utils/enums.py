@@ -8,6 +8,20 @@ class LowercaseEnum(Enum):
     def __str__(self):
         return self.name.lower()
 
+class NoneEnum(LowercaseEnum):
+    @classmethod
+    def from_string(cls, s: str):
+        if s == "" or s == None:
+            return cls["NONE"]
+        else:
+            return super().from_string(s)
+
+    def __str__(self):
+        if self.name == "NONE":
+            return ""
+        else:
+            return super().__str__()
+
 class EnableDisableToggle(LowercaseEnum):
     ENABLE = auto()
     DISABLE = auto()

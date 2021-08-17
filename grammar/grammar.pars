@@ -18,15 +18,17 @@ yes_no_statement =  ( "workspace_auto_back_and_forth" / "force_focus_wrapping" /
 colors_statement = ("separator" space color) / ("background" space color) / ("statusline" space color) / ("focused_workspace" space color space color space color) / ("active_workspace" space color space color space color) / ("inactive_workspace" space color space color space color) / ("urgent_workspace" space color space color space color)
 bar_position_statement = "position" space ("top" / "bottom")
 
-window_event = "for_window" space window_specifier space bind_action
-window_specifier = "[" ( comma_list ) "]"
-comma_list = (key_value space ("," space)? comma_list) / key_value
-key_value = variable_name "=" quoted_string
+window_event = "for_window" space criteria_set space bind_action
+criteria_set = "[" criteria (space criteria)* "]"
+criteria = parameterized_criteria / single_criteria
+parameterized_criteria = variable_name "=" i3_word
+single_criteria = "tiling" / "floating" / "all"
 mouse_warping_statement = "mouse_warping" space ( "none" / "output" )
 
 
-assign_statement = "assign" space window_specifier space ("→" space)? workspace_params
-no_focus_statement = "no_focus" space window_specifier
+assign_statement = "assign" space criteria_set space assign_tail
+assign_tail = ("→" space)? (("workspace" / "output" / "number") space)? i3_word
+no_focus_statement = "no_focus" space criteria_set
 
 hide_edge_borders_statement = "hide_edge_borders" space window_edge_const
 
@@ -157,8 +159,12 @@ word = ~"[^() \n]+"
 rest = ~"[^\n]+"
 dotted_name =  ( variable_name "." dotted_name ) / variable_name
 variable_name = ~"[a-zA-Z_][a-zA-Z_0-9]*"
+# A word that doesn't include most symbols
+symboless_word = ~"[a-zA-Z_0-9\-]*"
 variable = "$" variable_name
 
+# i3_word tries to capture what the i3 parser means by "word"
+i3_word = quoted_string / variable / symboless_word
 word_or_quoted_string = quoted_string / word
 quoted_variable = quote variable quote
 

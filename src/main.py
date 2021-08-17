@@ -25,6 +25,7 @@ from statements.empty import *
 from statements.set import *
 from statements.font import *
 from statements.floating_modifier import *
+from statements.assign import *
 import os
 
 class BindOption(Enum): 
@@ -400,6 +401,67 @@ class I3ConfigVisitor(NodeVisitor):
         modifier_key, = modifier_key
         return ModifierKey.from_string(modifier_key.text)
 
+    def visit_assign_statement(self, node, assign_statement):
+        _, space0, criteria_set, space1, assign_tail = assign_statement
+        spacing = [space0, space1]
+        has_arrow, assign_option, target, tail_spacing = assign_tail
+        spacing.extend(tail_spacing)
+        return AssignStatement(criteria_set, assign_option, target, has_arrow=has_arrow, spacing=spacing)
+
+    def visit_assign_tail(self, node, assign_tail):
+        """
+        Returns a list containing
+        bool: whether the arrow was used
+        AssignOption: the AssignOption that was specified
+        str: target of the assignment option. A workspace name or output name Ex: HDMI-0, 10, DP-0
+        list[str]: spacing
+        """
+        arrow_space_optional, assign_option_space, target = assign_tail
+        return_list = []
+        spacing = []
+        if type(arrow_space_optional) == list:
+            arrow_space_optional, = arrow_space_optional
+            _, space0 = arrow_space_optional
+            spacing.append(space0)
+            return_list.append(True)
+        else:
+            return_list.append(False)
+        if type(assign_option_space) == list:
+            assign_option_space, = assign_option_space
+            assign_option, space1 = assign_option_space
+            assign_option, = assign_option
+            spacing.append(space1)
+            return_list.append(AssignOption.from_string(assign_option.text))
+        else:
+            return_list.append(AssignOption.NONE)
+        return_list.append(target)
+        return_list.append(spacing)
+
+        return return_list
+
+    def visit_criteria_set(self, node, criteria_set):
+        _, criteria0, space_criteria, _ = criteria_set
+        spacing = []
+        criteria_list = [criteria0]
+        if type(space_criteria) == list:
+            for space, criteria in space_criteria:
+                spacing.append(space)
+                criteria_list.append(criteria)
+
+        return CriteriaSet(criteria_list, spacing=spacing)
+
+    def visit_criteria(self, node, criteria):
+        criteria, = criteria
+        return criteria
+
+    def visit_single_criteria(self, node, single_criteria):
+        criteria_name, = single_criteria
+        return SingleCriteria(SingleCriteriaOption.from_string(criteria_name.text))
+
+    def visit_parameterized_criteria(self, node, parameterized_criteria):
+        criteria_option, _, parameter = parameterized_criteria
+        return ParameterizedCriteria(ParameterizedCriteriaOption.from_string(criteria_option), parameter)
+
     def visit_exec_command(self, node, exec_command):
         _, space, command = exec_command
         return ExecCommand(command, spacing=[space])
@@ -696,6 +758,13 @@ class I3ConfigVisitor(NodeVisitor):
         return Variable(variable_name)
 
     def visit_variable_name(self, node, variable_name):
+        return node.text
+
+    def visit_i3_word(self, node, i3_word):
+        i3_word, = i3_word
+        return i3_word
+
+    def visit_symboless_word(self, node, symboless_word):
         return node.text
 
     def visit_rest(self, node, rest):
