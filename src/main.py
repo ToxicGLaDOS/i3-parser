@@ -3,6 +3,7 @@ from typing import List, Tuple, Union, Iterable
 from grammar import build_grammar
 from enum import Enum, auto
 from parsimonious.nodes import NodeVisitor
+from variable import *
 from commands.move import *
 from commands.fullscreen import *
 from commands.exec import *
@@ -23,6 +24,7 @@ from statements.workspace import *
 from statements.empty import *
 from statements.set import *
 from statements.font import *
+from statements.floating_modifier import *
 import os
 
 class BindOption(Enum): 
@@ -365,12 +367,38 @@ class I3ConfigVisitor(NodeVisitor):
 
     def visit_set_statement(self, node, set_statement):
         _, space0, variable_name, space1, value = set_statement
-        _, variable_name = variable_name
         return SetStatement(variable_name, value, spacing=[space0, space1])
 
     def visit_font_statement(self, node, font_statement):
         _, space, font_name = font_statement
         return FontStatement(font_name, spacing=[space])
+
+    def visit_floating_modifier_statement(self, node, floating_modifier_statement):
+        _, modifiers = floating_modifier_statement
+        if type(modifiers) == list:
+            spacing = []
+            pluses = []
+            mod_key_or_vars = []
+            for modifier in modifiers:
+                space0, mod_key_or_var, space_plus_optional = modifier
+                spacing.append(space0)
+                mod_key_or_var, = mod_key_or_var
+                mod_key_or_vars.append(mod_key_or_var)
+                if type(space_plus_optional) == list:
+                    space_plus_optional, = space_plus_optional
+                    space, _ = space_plus_optional
+                    spacing.append(space)
+                    pluses.append(True)
+                else:
+                    pluses.append(False)
+            return FloatingModifierStatement(mod_key_or_vars, pluses=pluses, spacing=spacing)
+        # No arguments to floating_modifier statement
+        else:
+            return FloatingModifierStatement([], spacing=[])
+
+    def visit_modifier_key(self, node, modifier_key):
+        modifier_key, = modifier_key
+        return ModifierKey.from_string(modifier_key.text)
 
     def visit_exec_command(self, node, exec_command):
         _, space, command = exec_command
@@ -662,6 +690,10 @@ class I3ConfigVisitor(NodeVisitor):
     def visit_quoted_string(self, node, quoted_string):
         _, string_contents, _ = quoted_string
         return f'"{string_contents.text}"'
+
+    def visit_variable(self, node, variable):
+        _, variable_name = variable
+        return Variable(variable_name)
 
     def visit_variable_name(self, node, variable_name):
         return node.text
