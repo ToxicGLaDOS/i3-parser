@@ -4,6 +4,7 @@ from grammar import build_grammar
 from enum import Enum, auto
 from parsimonious.nodes import NodeVisitor
 from variable import *
+from criteria_set import *
 from commands.move import *
 from commands.fullscreen import *
 from commands.exec import *
@@ -28,6 +29,7 @@ from statements.font import *
 from statements.floating_modifier import *
 from statements.assign import *
 from statements.binding import *
+from statements.for_window_statement import *
 import os
 
 
@@ -387,6 +389,10 @@ class I3ConfigVisitor(NodeVisitor):
     def visit_parameterized_criteria(self, node, parameterized_criteria):
         criteria_option, _, parameter = parameterized_criteria
         return ParameterizedCriteria(ParameterizedCriteriaOption.from_string(criteria_option), parameter)
+
+    def visit_for_window_statement(self, node, for_window_statement):
+        _, space0, criteria_set, space1, commands = for_window_statement
+        return ForWindowStatement(criteria_set, commands, spacing=[space0, space1])
 
     def visit_exec_command(self, node, exec_command):
         _, space, command = exec_command
