@@ -30,20 +30,37 @@ from statements.floating_modifier import *
 from statements.assign import *
 from statements.binding import *
 from statements.for_window_statement import *
+from statements.mode_block import *
 import os
 
 
 class I3ConfigVisitor(NodeVisitor):
 
+    def visit_result(self, node, result):
+        for space_block_or_line in result:
+            space_block_or_line, = space_block_or_line
+            space, block_or_line = space_block_or_line
+            with open("output.config", 'a') as out:
+                out.write(space + str(block_or_line) + '\n')
+
+    def visit_block(self, node, block):
+        space = ""
+        space_optional, block, _ = block
+        block, = block
+        if type(space_optional) == list:
+            space, = space_optional
+        return [space, block]
+
     def visit_line(self, node, line):
         space_optional, line = line
         space = ''
         line, = line
+        # Happens when the line is a comment
+        if type(line) == list:
+            line, _ = line
         if type(space_optional) == list:
             space, = space_optional
-        with open("output.config", 'a') as out:
-            out.write(space + str(line) + '\n')
-        return line
+        return [space, line]
 
     def visit_statement(self, node, statement):
         statement, _ = statement
@@ -394,6 +411,35 @@ class I3ConfigVisitor(NodeVisitor):
         _, space0, criteria_set, space1, commands = for_window_statement
         return ForWindowStatement(criteria_set, commands, spacing=[space0, space1])
 
+    def visit_mode_block(self, node, mode_block):
+        _, space0, pango_space_optional, i3_word, space1_optional, _, _, space_statement_newlines, _ = mode_block
+        spacing = [space0]
+        statements = []
+        pango_markup_flag = False
+        if type(pango_space_optional) == list:
+            pango_space_optional, = pango_space_optional
+            _, pango_space, = pango_space_optional
+            pango_markup_flag = True
+            spacing.append(pango_space)
+        if type(space1_optional) == list:
+            space1, = space1_optional
+            spacing.append(space1)
+        else:
+            spacing.append("")
+        if type(space_statement_newlines) == list:
+            for space_statement_newline in space_statement_newlines:
+                statement_space, statement, _ = space_statement_newline
+                if type(statement_space) == list:
+                    statement_space, = statement_space
+                    spacing.append(statement_space)
+                else:
+                    spacing.append("")
+
+                statement, = statement
+                statements.append(statement)
+
+        return ModeBlockStatement(i3_word, statements, pango_markup_flag, spacing=spacing)
+
     def visit_exec_command(self, node, exec_command):
         _, space, command = exec_command
         return ExecCommand(command, spacing=[space])
@@ -664,7 +710,7 @@ class I3ConfigVisitor(NodeVisitor):
         return node.text
 
     def visit_comment(self, node, comment):
-        _, comment, _ = comment
+        _, comment = comment
         return CommentStatement(comment)
 
     def visit_empty_statement(self, node, empty_statement):
