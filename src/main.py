@@ -19,6 +19,7 @@ from commands.workspace import *
 from commands.resize import *
 from commands.scratchpad import *
 from commands.border import *
+from commands.command_set import *
 from statements.comment import *
 from statements.workspace import *
 from statements.empty import *
@@ -26,81 +27,8 @@ from statements.set import *
 from statements.font import *
 from statements.floating_modifier import *
 from statements.assign import *
+from statements.binding import *
 import os
-
-class BindOption(Enum): 
-    RELEASE = auto()
-    BORDER = auto()
-    WHOLE_WINDOW = auto()
-    EXCLUDE_TITLEBAR = auto()
-
-    @staticmethod
-    def from_str(s: str):
-        if s == "--release":
-            return BindOption.RELEASE
-        elif s == "--border":
-            return BindOption.BORDER
-        elif s == "--whole-window":
-            return BindOption.WHOLE_WINDOW
-        elif s == "--exclude-titlebar":
-            return BindOption.EXCLUDE_TITLEBAR
-        else:
-            raise ValueError(f"Expected one of (--release, --border, --whole-window, --exclude-titlebar), got {s}")
-
-    def __str__(self):
-        return '--' + self.name.lower().replace('_', '-')
-
-class Separator(Enum):
-    SEMICOLON = auto()
-    COMMA = auto()
-
-class I3Binding(object):
-    def __init__(self,
-                 keyword: str,
-                 bind_options0: List[BindOption],
-                 key: str,
-                 bind_options1: List[BindOption],
-                 commands: List[Command],
-                 separators: List[Separator],
-                 spacing: Iterable[str] = all_spaces):
-        self.keyword = keyword
-        self.bind_options0 = bind_options0
-        self.key = key
-        self.bind_options1 = bind_options1
-        self.commands = commands
-        self.separators = separators
-        self.spacing = spacing
-    
-    def __str__(self):
-        s = self.keyword
-        space_index = 0
-        for bind_option in self.bind_options0:
-            s += self.spacing[space_index]
-            space_index += 1
-            s += str(bind_option)
-        
-        s += self.spacing[space_index]
-        space_index += 1
-        s += self.key
-        for bind_option in self.bind_options1:
-            s += self.spacing[space_index]
-            space_index += 1
-            s += str(bind_option)
-        
-        s += self.spacing[space_index]
-        space_index += 1
-        for separators_index, command in enumerate(self.commands):
-            s += str(command)
-            # We don't add a space or separator for the last command
-            if separators_index < len(self.commands) - 1:
-                s += self.spacing[space_index]
-                space_index += 1
-                s += self.separators[separators_index]
-                s += self.spacing[space_index]
-                space_index += 1
-
-        
-        return s
 
 
 class I3ConfigVisitor(NodeVisitor):
@@ -119,18 +47,16 @@ class I3ConfigVisitor(NodeVisitor):
         statement, _ = statement
         return statement
 
-    def visit_bind_statement(self, node, bind_statement):
+    def visit_binding_statement(self, node, binding_statement):
         # bind_option0 and bind_option1 are either an 
         # empty node or a list of list of strings including the prepending space
         # TODO: Return an object instead
         bind_options0 = []
         bind_options1 = []
-        keyword, space_bind_option0, space0, key, space_bind_option1, space1, bind_actions = bind_statement
+        spacing = []
+        keyword, space_bind_option0, space0, key, space_bind_option1, space1, commands = binding_statement
         keyword = keyword[0].text
         key = key
-        commands = bind_actions["commands"]
-        spacing = bind_actions["spacing"]
-        separators = bind_actions["separators"]
         spacing.insert(0, space1)
         if type(space_bind_option1) == list:
             for space_bind_option in space_bind_option1:
@@ -147,7 +73,7 @@ class I3ConfigVisitor(NodeVisitor):
                 bind_options0.append(bind_option)
         
         
-        binding = I3Binding(keyword, bind_options0, key, bind_options1, commands, separators, spacing)
+        binding = BindingStatement(keyword, bind_options0, key, bind_options1, commands, spacing=spacing)
         return binding
 
     def visit_fullscreen_command(self, node, fullscreen_command):
@@ -567,43 +493,39 @@ class I3ConfigVisitor(NodeVisitor):
         direction, = direction
         return Direction.from_string(direction.text)
 
-    def visit_bind_actions(self, node, bind_actions):
-        bind_actions, = bind_actions
-        if type(bind_actions) == list:
-            bind_action, space0, separator, space1, bind_actions = bind_actions
-            if type(space0) == list:
-                space0, = space0
-            else:
-                space0 = space0.text
-            separator, = separator
-            separator = separator.text
-            if type(space1) == list:
-                space1, = space1
-            else:
-                space1 = space1.text
-            # If bind_actions is a list than this is the first
-            # in the sequence of bind_actions so we initalize the dict
-            if type(bind_actions) == list:
-                bind_actions = {
-                    "spacing": [],
-                    "separators": [],
-                    "commands": [bind_actions[0]]
-                }
-            bind_actions["commands"].insert(0, bind_action)
-            bind_actions["spacing"].insert(0, space1)
-            bind_actions["spacing"].insert(0, space0)
-            bind_actions["separators"].insert(0, separator)
-            return bind_actions
-        else:
-            return {
-                "spacing": [],
-                "separators": [],
-                "commands": [bind_actions]
-            }
+    def visit_commands(self, node, commands):
+        command, commands_and_other_stuff = commands
+        commands = []
+        spacing = []
+        separators = []
+        commands.append(command)
+        # If there are more than one command
+        if type(commands_and_other_stuff) == list:
+            for space_separator_space_command in commands_and_other_stuff:
+                space0_optional, separator, space1_optional, command = space_separator_space_command
+                if type(space0_optional) == list:
+                    space0, = space0_optional
+                    spacing.append(space0)
+                else:
+                    # The CommandSet is one of the few cases in spacing where there's no
+                    # good way to tell if spacing is required or not so we have to explicitly
+                    # say that we want no spacing. In most other objects the number of spaces required
+                    # can be inferred to some degree
+                    spacing.append("")
+                if type(separator) == list:
+                    separator, = separator
+                    separators.append(Separator.from_string(separator.text))
+                if type(space1_optional) == list:
+                    space1, = space1_optional
+                    spacing.append(space1)
+                else:
+                    spacing.append("")
+                commands.append(command)
+        return CommandSet(commands, separators, spacing=spacing)
 
-    def visit_bind_action(self, node, bind_action):
-        bind_action, = bind_action
-        return bind_action
+    def visit_command(self, node, command):
+        command, = command
+        return command
 
     def visit_move_command(self, node, move_command):
         # _: literal "move"
