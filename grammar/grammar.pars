@@ -1,7 +1,7 @@
 result = ( block / line ) *
 
 block = space? (mode_block / bar_block) newline
-bar_block = "bar" space "{" newline (space? (bar_statement / colors_block) newline)* "}" newline
+bar_block = "bar" space "{" newline (space? (bar_statement / colors_block) newline)* "}"
 bar_statement = bar_position_statement / bar_status_command / font_statement
 colors_block = "colors" space "{" newline (space? colors_statement newline)* space "}"
 mode_block = "mode" space ("--pango_markup" space)? i3_word space? "{" newline (space? (comment / set_statement / binding_statement / empty_statement) newline)* "}"
